@@ -1,123 +1,128 @@
 import { AntDesign } from "@expo/vector-icons";
-
 import {
-	Text,
-	View,
-	TextInput,
 	StyleSheet,
+	View,
+	Text,
+	TextInput,
 	TouchableOpacity,
-	KeyboardAvoidingView,
-	TouchableWithoutFeedback,
-	Keyboard,
-	ImageBackground,
 	Image,
+	ImageBackground,
+	KeyboardAvoidingView,
 	Platform,
+	Keyboard,
+	TouchableNativeFeedback,
 } from "react-native";
+import { useState } from "react";
 
 export const RegistrationScreen = () => {
+	const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+	const togglePassword = () => {
+		setIsPasswordVisible((prev) => !prev);
+	};
+
+	const handleInputFocus = () => {
+		setIsShowKeyboard(true);
+	};
+
+	const handleInputBlur = () => {
+		setIsShowKeyboard(false);
+	};
+	const defaultAvatar = require("../assets/Image/avatar.jpg");
 	return (
-		<>
-			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<KeyboardAvoidingView
-					style={styles.mainContainer}
-					behavior={Platform.OS === "ios" ? "padding" : "height"}
-				>
-					<ImageBackground source={require("../assets/Image/BG.jpg")} style={styles.imageBG}>
-						<View style={styles.container}>
-							<View style={styles.avatarContainer}>
-								<Image
-									style={styles.avatar}
-									source={require("../assets/Image/userFotoField.jpg")}
-								/>
-								<TouchableOpacity style={styles.iconAddButton}>
-									<AntDesign name="pluscircleo" size={24} color="#FF6C00" />
-								</TouchableOpacity>
+		<KeyboardAvoidingView
+			style={styles.mainContainer}
+			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			enabled
+		>
+			<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>
+				<ImageBackground style={styles.imageBg} source={require("../assets/Image/BG.jpg")}>
+					<View
+						style={{
+							...styles.avatarContainer,
+							top: isShowKeyboard ? 87 : 203,
+						}}
+					>
+						<Image style={styles.avatar} source={defaultAvatar} />
+						<TouchableOpacity style={styles.iconAddButton}>
+							<AntDesign name="pluscircleo" size={24} color="#FF6C00" />
+						</TouchableOpacity>
+					</View>
+					<View
+						style={{
+							...styles.container,
+							marginTop: isShowKeyboard ? 147 : 263,
+						}}
+					>
+						<View style={styles.form}>
+							<View style={styles.titleContainer}>
+								<Text style={styles.title}>Реєстрація</Text>
 							</View>
-							<Text style={styles.text}>Реєстрація</Text>
-							<TextInput style={styles.input} placeholder="Логін" placeholderTextColor="#BDBDBD" />
+							<TextInput
+								style={styles.input}
+								placeholder="Логін"
+								onFocus={handleInputFocus}
+								onBlur={handleInputBlur}
+							/>
 							<TextInput
 								style={styles.input}
 								placeholder="Адреса електронної пошти"
-								placeholderTextColor="#BDBDBD"
-								secureTextEntry={true}
+								onFocus={handleInputFocus}
+								onBlur={handleInputBlur}
 							/>
-
 							<View style={styles.passwordInputContainer}>
 								<TextInput
-									style={styles.inputPassword}
+									style={styles.input}
 									placeholder="Пароль"
-									placeholderTextColor="#BDBDBD"
+									onFocus={handleInputFocus}
+									onBlur={handleInputBlur}
 								/>
-								<TouchableOpacity style={styles.showPasswordButton}>
-									<Text style={styles.showPasswordButtonText}>Показати</Text>
+								<TouchableOpacity style={styles.showPasswordButton} onPress={togglePassword}>
+									<Text style={styles.showPasswordButtonText}>
+										{isPasswordVisible ? "Приховати" : "Показати"}
+									</Text>
 								</TouchableOpacity>
 							</View>
-
-							<TouchableOpacity style={styles.button}>
-								<Text style={styles.textBtn}>Зареєстуватися</Text>
-							</TouchableOpacity>
-							<TouchableOpacity style={styles.loginLink}>
-								<Text style={styles.loginLinkText}>Вже є акаунт? Увійти</Text>
-							</TouchableOpacity>
 						</View>
-					</ImageBackground>
-				</KeyboardAvoidingView>
-			</TouchableWithoutFeedback>
-		</>
+						<TouchableOpacity activeOpacity={0.8} style={styles.btn}>
+							<Text style={{ color: "#fff" }}>Зареєструватися</Text>
+						</TouchableOpacity>
+						<TouchableOpacity style={styles.loginLink}>
+							<Text style={styles.loginLink}>Вже є акаунт? Увійти</Text>
+						</TouchableOpacity>
+					</View>
+				</ImageBackground>
+			</TouchableNativeFeedback>
+		</KeyboardAvoidingView>
 	);
 };
+
 const styles = StyleSheet.create({
-	input: {
-		borderColor: "#E8E8E8",
-		height: 50,
-		width: 343,
-		backgroundColor: "#F6F6F6",
-		borderWidth: 2,
-		marginBottom: 16,
-		color: "#212121",
-		// fontSize: 16,
-		// fontWeight: 400,
-		marginRight: "auto",
-		marginLeft: "auto",
-		borderRadius: 8,
-		paddingLeft: 16,
-	},
-	passwordInputContainer: {
-		position: "relative",
-	},
-	showPasswordButton: {
-		position: "absolute",
-		right: 18,
-		top: "50%",
-		transform: [{ translateY: -32 }],
-		zIndex: 1,
-	},
-	showPasswordButtonText: {
-		color: "#1B4371",
+	mainContainer: {
+		flex: 1,
+		backgroundColor: "#fff",
+		fontFamily: "Roboto-Regular",
 		fontSize: 16,
-		fontWeight: 400,
 	},
-	inputPassword: {
-		borderColor: "#E8E8E8",
-		height: 50,
-		width: 343,
-		backgroundColor: "#F6F6F6",
-		borderWidth: 2,
-		marginBottom: 43,
-		color: "#212121",
-		marginRight: "auto",
-		marginLeft: "auto",
-		borderRadius: 8,
-		paddingLeft: 16,
+	imageBg: {
+		position: "absolute",
+		width: "100%",
+		flex: 1,
+	},
+	container: {
+		flex: 1,
+		backgroundColor: "#FFFFFF",
+		borderTopLeftRadius: 25,
+		borderTopRightRadius: 25,
+		paddingHorizontal: 16,
+		paddingTop: 92,
 	},
 	avatarContainer: {
-		// left: 129,
-		// right: 0,
-		// top:-60,
+		position: "absolute",
+		left: 129,
+		right: 0,
 		zIndex: 1,
-		marginRight: "auto",
-		marginLeft: "auto",
-		marginBottom: 32,
 	},
 	avatar: {
 		borderRadius: 16,
@@ -128,58 +133,53 @@ const styles = StyleSheet.create({
 		left: 107,
 	},
 
-	mainContainer: {
-		flex: 1,
-		// backgroundColor: "#fff",
-		// fontFamily: "Roboto-Regular",
-		// fontSize: 16,
-		// height: 549,
-	},
-	text: {
-		marginBottom: 32,
-		fontSize: 30,
-		fontWeight: 500,
-		color: "#212121",
-		textAlign: "center",
-	},
-	container: {
-		flex: 1,
-		backgroundColor: "#FFFFFF",
-		borderTopLeftRadius: 25,
-		borderTopRightRadius: 25,
-		paddingHorizontal: 16,
-		paddingTop: 92,
-		marginTop: 253,
-		justifyContent: "flex-end",
-	},
-	button: {
-		backgroundColor: "#FF6C00",
-
-		borderRadius: 100,
-
-		marginBottom: 16,
-		height: 51,
+	titleContainer: {
 		justifyContent: "center",
 		alignItems: "center",
+		marginBottom: 33,
 	},
-	textBtn: {
-		color: "#FFFFFF",
+	title: {
+		fontSize: 30,
+		fontFamily: "Roboto-Medium",
 	},
-	imageBG: {
+
+	input: {
+		borderWidth: 1,
+		borderColor: "#E8E8E8",
+		borderRadius: 8,
+		marginBottom: 16,
+		backgroundColor: "#E8E8E8",
+		color: "#212121",
+		padding: 16,
+	},
+
+	btn: {
+		backgroundColor: "#FF6C00",
+		height: 50,
+		borderRadius: 100,
+		justifyContent: "center",
+		alignItems: "center",
+		marginTop: 20,
+		marginBottom: 16,
+	},
+	passwordInputContainer: {
 		position: "relative",
-		flex: 1,
+	},
+
+	showPasswordButton: {
+		position: "absolute",
+		right: 16,
+		top: "50%",
+		transform: [{ translateY: -18 }],
+		zIndex: 1,
+	},
+	showPasswordButtonText: {
+		color: "#1B4371",
 	},
 	loginLink: {
-		// justifyContent: "center",
-		// alignItems: "center",
-		// color: "#1B4371",
-		marginBottom: 45,
-	},
-	loginLinkText: {
-		textAlign: "center",
-		height: 30,
+		justifyContent: "center",
+		alignItems: "center",
 		color: "#1B4371",
-		fontWeight: 400,
-		fontSize: 16,
+		marginBottom: 78,
 	},
 });
