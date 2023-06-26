@@ -13,22 +13,13 @@ import {
 import { useState } from "react";
 
 export const LoginScreen = () => {
-	const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+	const [focusPassword, setFocusPassword] = useState(false);
+	const [focusEmail, setFocusEmail] = useState(false);
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
 	const togglePassword = () => {
 		setIsPasswordVisible((prev) => !prev);
 	};
-
-	const handleInputFocus = () => {
-		setIsShowKeyboard(true);
-	};
-
-	const handleInputBlur = () => {
-		setIsShowKeyboard(false);
-	};
-	const defaultAvatar = require("../assets/Image/avatar.jpg");
-
 	return (
 		<KeyboardAvoidingView
 			style={styles.mainContainer}
@@ -40,7 +31,7 @@ export const LoginScreen = () => {
 					<View
 						style={{
 							...styles.container,
-							marginTop: isShowKeyboard ? 273 : 323,
+							top: focusEmail || focusPassword ? 273 : 323,
 						}}
 					>
 						<View style={styles.form}>
@@ -49,18 +40,20 @@ export const LoginScreen = () => {
 							</View>
 
 							<TextInput
-								style={styles.input}
+								style={[styles.input, focusEmail && styles.inputOnFocus]}
 								placeholder="Адреса електронної пошти"
-								onFocus={handleInputFocus}
-								onBlur={handleInputBlur}
+								placeholderTextColor="#BDBDBD"
+								onFocus={() => setFocusEmail(true)}
+								onBlur={() => setFocusEmail(false)}
 							/>
 							<View style={styles.passwordInputContainer}>
 								<TextInput
-									style={styles.input}
+									style={[styles.inputPassword, focusPassword && styles.inputOnFocus]}
 									placeholder="Пароль"
-									secureTextEntry={!isPasswordVisible}
-									onFocus={handleInputFocus}
-									onBlur={handleInputBlur}
+									placeholderTextColor="#BDBDBD"
+									secureTextEntry={isPasswordVisible}
+									onFocus={() => setFocusPassword(true)}
+									onBlur={() => setFocusPassword(false)}
 								/>
 								<TouchableOpacity style={styles.showPasswordButton} onPress={togglePassword}>
 									<Text style={styles.showPasswordButtonText}>
@@ -70,10 +63,10 @@ export const LoginScreen = () => {
 							</View>
 						</View>
 						<TouchableOpacity activeOpacity={0.8} style={styles.btn}>
-							<Text style={{ color: "#fff" }}>Увійти</Text>
+							<Text style={styles.btnText}>Увійти</Text>
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.loginLink}>
-							<Text style={styles.loginLink}>Немає акаунту? Зареєструватися</Text>
+							<Text style={styles.loginLinkText}>Немає акаунту? Зареєструватися</Text>
 						</TouchableOpacity>
 					</View>
 				</ImageBackground>
@@ -85,24 +78,23 @@ export const LoginScreen = () => {
 const styles = StyleSheet.create({
 	mainContainer: {
 		flex: 1,
-		backgroundColor: "#fff",
-		fontFamily: "Roboto-Regular",
-		fontSize: 16,
 	},
 
 	imageBg: {
 		position: "absolute",
 		width: "100%",
 		flex: 1,
+		resizeMode: "cover",
 	},
 	container: {
 		flex: 1,
 		backgroundColor: "#FFFFFF",
 		borderTopLeftRadius: 25,
 		borderTopRightRadius: 25,
-		paddingHorizontal: 16,
 		paddingTop: 32,
-		paddingBottom: 144,
+		fontFamily: "Roboto-Regular",
+		alignItems: "center",
+		width: "100%",
 	},
 
 	titleContainer: {
@@ -112,7 +104,9 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontSize: 30,
+		letterSpacing: 0.3,
 		fontFamily: "Roboto-Medium",
+		color: "#212121",
 	},
 
 	input: {
@@ -120,37 +114,68 @@ const styles = StyleSheet.create({
 		borderColor: "#E8E8E8",
 		borderRadius: 8,
 		marginBottom: 16,
-		backgroundColor: "#E8E8E8",
+		backgroundColor: "#F6F6F6",
 		color: "#212121",
 		padding: 16,
+		width: 343,
+		height: 50,
+		fontSize: 16,
+		fontFamily: "Roboto-Regular",
+	},
+	inputPassword: {
+		borderWidth: 1,
+		borderColor: "#E8E8E8",
+		borderRadius: 8,
+		marginBottom: 43,
+		backgroundColor: "#F6F6F6",
+		color: "#212121",
+		padding: 16,
+		width: 343,
+		height: 50,
+		fontSize: 16,
+		fontFamily: "Roboto-Regular",
+	},
+	inputOnFocus: {
+		borderColor: "#FF6C00",
+		backgroundColor: "#FFFFFF",
 	},
 
 	btn: {
 		backgroundColor: "#FF6C00",
-		height: 50,
 		borderRadius: 100,
 		justifyContent: "center",
 		alignItems: "center",
 		marginBottom: 16,
-		marginTop: 27,
+		width: 343,
+		paddingHorizontal: 32,
+		paddingVertical: 16,
 	},
-	passwordInputContainer: {
-		position: "relative",
+	btnText: {
+		color: "#FFFFFF",
+		fontSize: 16,
+		fontFamily: "Roboto-Regular",
 	},
+	passwordInputContainer: {},
 
 	showPasswordButton: {
 		position: "absolute",
 		right: 16,
-		top: "50%",
-		transform: [{ translateY: -18 }],
+		top: 16,
 		zIndex: 1,
 	},
 	showPasswordButtonText: {
 		color: "#1B4371",
+		fontSize: 16,
+		fontFamily: "Roboto-Regular",
 	},
 	loginLink: {
 		justifyContent: "center",
 		alignItems: "center",
+		marginBottom: 470,
+	},
+	loginLinkText: {
 		color: "#1B4371",
+		fontSize: 16,
+		fontFamily: "Roboto-Regular",
 	},
 });
