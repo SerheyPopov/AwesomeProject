@@ -13,25 +13,67 @@ import {
 	TouchableNativeFeedback,
 } from "react-native";
 import { useState } from "react";
+import * as ImagePicker from "expo-image-picker";
+
+const initialState = {
+	login: "",
+	email: "",
+	password: "",
+};
 
 export const RegistrationScreen = () => {
 	const [focusPassword, setFocusPassword] = useState(false);
 	const [focusLogin, setFocusLogin] = useState(false);
 	const [focusEmail, setFocusEmail] = useState(false);
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+	const [registerateUser, setRegisterateUser] = useState(initialState);
+	const [userFoto, setUserFoto] = useState(null);
 
 	const togglePassword = () => {
 		setIsPasswordVisible((prev) => !prev);
 	};
+	const handleregistrate = () => {
+		if (
+			registerateUser.login === "" ||
+			registerateUser.email === "" ||
+			registerateUser.password === ""
+		) {
+			return console.log("Ви повинні заповнити усі поля");
+		}
+		console.log("Registration:", registerateUser);
+		setRegisterateUser(initialState);
+	};
+
+	const handleDeleteAvatar = () => {
+		setUserFoto(null);
+	};
+
+	const handleSelectAvatar = async () => {
+		const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+		if (status !== "granted") {
+			alert("Доступ заборонено");
+			return;
+		}
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 1,
+		});
+		if (!result.canceled) {
+			setUserFoto(result.assets[0].uri);
+		}
+	};
 
 	const defaultAvatar = require("../assets/Image/avatar.jpg");
 	return (
-		<KeyboardAvoidingView
-			style={styles.mainContainer}
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			enabled
-		>
-			<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>
+		<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>
+			<KeyboardAvoidingView
+				style={styles.mainContainer}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+				enabled
+			>
 				<ImageBackground style={styles.imageBg} source={require("../assets/Image/BG.jpg")}>
 					<View
 						style={{
@@ -39,10 +81,16 @@ export const RegistrationScreen = () => {
 							top: focusLogin || focusEmail || focusPassword ? 87 : 203,
 						}}
 					>
-						<Image style={styles.avatar} source={defaultAvatar} />
-						<TouchableOpacity style={styles.iconAddButton}>
-							<AntDesign name="pluscircleo" size={24} color="#FF6C00" />
-						</TouchableOpacity>
+						<Image style={styles.avatar} source={userFoto ? { uri: userFoto } : defaultAvatar} />
+						{userFoto ? (
+							<TouchableOpacity style={styles.iconAddButton} onPress={handleDeleteAvatar}>
+								<AntDesign name="closecircleo" size={24} color="#E8E8E8" />
+							</TouchableOpacity>
+						) : (
+							<TouchableOpacity style={styles.iconAddButton} onPress={handleSelectAvatar}>
+								<AntDesign name="pluscircleo" size={24} color="#FF6C00" />
+							</TouchableOpacity>
+						)}
 					</View>
 					<View
 						style={{
@@ -60,6 +108,10 @@ export const RegistrationScreen = () => {
 								placeholderTextColor="#BDBDBD"
 								onFocus={() => setFocusLogin(true)}
 								onBlur={() => setFocusLogin(false)}
+								value={registerateUser.login}
+								onChangeText={(value) =>
+									setRegisterateUser((prevState) => ({ ...prevState, login: value }))
+								}
 							/>
 							<TextInput
 								style={[styles.input, focusEmail && styles.inputOnFocus]}
@@ -67,6 +119,11 @@ export const RegistrationScreen = () => {
 								placeholderTextColor="#BDBDBD"
 								onFocus={() => setFocusEmail(true)}
 								onBlur={() => setFocusEmail(false)}
+								inputMode={"email"}
+								value={registerateUser.email}
+								onChangeText={(value) =>
+									setRegisterateUser((prevState) => ({ ...prevState, email: value }))
+								}
 							/>
 							<View style={styles.passwordInputContainer}>
 								<TextInput
@@ -76,6 +133,10 @@ export const RegistrationScreen = () => {
 									secureTextEntry={isPasswordVisible}
 									onFocus={() => setFocusPassword(true)}
 									onBlur={() => setFocusPassword(false)}
+									value={registerateUser.password}
+									onChangeText={(value) =>
+										setRegisterateUser((prevState) => ({ ...prevState, password: value }))
+									}
 								/>
 								<TouchableOpacity style={styles.showPasswordButton} onPress={togglePassword}>
 									<Text style={styles.showPasswordButtonText}>
@@ -84,7 +145,7 @@ export const RegistrationScreen = () => {
 								</TouchableOpacity>
 							</View>
 						</View>
-						<TouchableOpacity style={styles.btn}>
+						<TouchableOpacity style={styles.btn} onPress={handleregistrate}>
 							<Text style={styles.btnText}>Зареєструватися</Text>
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.loginLink}>
@@ -92,8 +153,8 @@ export const RegistrationScreen = () => {
 						</TouchableOpacity>
 					</View>
 				</ImageBackground>
-			</TouchableNativeFeedback>
-		</KeyboardAvoidingView>
+			</KeyboardAvoidingView>
+		</TouchableNativeFeedback>
 	);
 };
 
@@ -121,6 +182,8 @@ const styles = StyleSheet.create({
 		position: "absolute",
 		left: "50%",
 		zIndex: 1,
+		width: 120,
+		height: 120,
 	},
 	avatar: {
 		borderRadius: 16,
@@ -132,6 +195,8 @@ const styles = StyleSheet.create({
 		position: "absolute",
 		top: 81,
 		left: 47.5,
+		borderRadius: 12,
+		backgroundColor: "#FFFFFF",
 	},
 	titleContainer: {
 		justifyContent: "center",
@@ -180,8 +245,10 @@ const styles = StyleSheet.create({
 	showPasswordButton: {
 		position: "absolute",
 		right: 16,
-		top: 16,
+		top: 0,
 		zIndex: 1,
+		justifyContent: "center",
+		height: 50,
 	},
 	showPasswordButtonText: {
 		color: "#1B4371",

@@ -12,21 +12,35 @@ import {
 } from "react-native";
 import { useState } from "react";
 
+const initialState = {
+	email: "",
+	password: "",
+};
+
 export const LoginScreen = () => {
 	const [focusPassword, setFocusPassword] = useState(false);
 	const [focusEmail, setFocusEmail] = useState(false);
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+	const [loginUser, setLoginUser] = useState(initialState);
 
 	const togglePassword = () => {
 		setIsPasswordVisible((prev) => !prev);
 	};
+
+	const handleLogin = () => {
+		if (loginUser.email === "" || loginUser.password === "") {
+			return console.log("Ви повинні заповнити усі поля");
+		}
+		console.log("login:", loginUser);
+		setLoginUser(initialState);
+	};
 	return (
-		<KeyboardAvoidingView
-			style={styles.mainContainer}
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			enabled
-		>
-			<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>
+		<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>
+			<KeyboardAvoidingView
+				style={styles.mainContainer}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+				enabled
+			>
 				<ImageBackground style={styles.imageBg} source={require("../assets/Image/BG.jpg")}>
 					<View
 						style={{
@@ -43,8 +57,13 @@ export const LoginScreen = () => {
 								style={[styles.input, focusEmail && styles.inputOnFocus]}
 								placeholder="Адреса електронної пошти"
 								placeholderTextColor="#BDBDBD"
+								inputMode={"email"}
 								onFocus={() => setFocusEmail(true)}
 								onBlur={() => setFocusEmail(false)}
+								value={loginUser.email}
+								onChangeText={(value) =>
+									setLoginUser((prevState) => ({ ...prevState, email: value }))
+								}
 							/>
 							<View style={styles.passwordInputContainer}>
 								<TextInput
@@ -54,15 +73,19 @@ export const LoginScreen = () => {
 									secureTextEntry={isPasswordVisible}
 									onFocus={() => setFocusPassword(true)}
 									onBlur={() => setFocusPassword(false)}
+									value={loginUser.password}
+									onChangeText={(value) =>
+										setLoginUser((prevState) => ({ ...prevState, password: value }))
+									}
 								/>
 								<TouchableOpacity style={styles.showPasswordButton} onPress={togglePassword}>
 									<Text style={styles.showPasswordButtonText}>
-										{isPasswordVisible ? "Приховати" : "Показати"}
+										{isPasswordVisible ? "Показати" : "Приховати"}
 									</Text>
 								</TouchableOpacity>
 							</View>
 						</View>
-						<TouchableOpacity activeOpacity={0.8} style={styles.btn}>
+						<TouchableOpacity style={styles.btn} onPress={handleLogin}>
 							<Text style={styles.btnText}>Увійти</Text>
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.loginLink}>
@@ -70,8 +93,8 @@ export const LoginScreen = () => {
 						</TouchableOpacity>
 					</View>
 				</ImageBackground>
-			</TouchableNativeFeedback>
-		</KeyboardAvoidingView>
+			</KeyboardAvoidingView>
+		</TouchableNativeFeedback>
 	);
 };
 
@@ -160,8 +183,10 @@ const styles = StyleSheet.create({
 	showPasswordButton: {
 		position: "absolute",
 		right: 16,
-		top: 16,
 		zIndex: 1,
+		top: 0,
+		justifyContent: "center",
+		height: 50,
 	},
 	showPasswordButtonText: {
 		color: "#1B4371",
