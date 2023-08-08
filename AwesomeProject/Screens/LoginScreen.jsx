@@ -12,21 +12,38 @@ import {
 } from "react-native";
 import { useState } from "react";
 
-export const LoginScreen = () => {
+const initialState = {
+	email: "",
+	password: "",
+};
+
+export const LoginScreen = ({ navigation }) => {
 	const [focusPassword, setFocusPassword] = useState(false);
 	const [focusEmail, setFocusEmail] = useState(false);
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+	const [loginUser, setLoginUser] = useState(initialState);
 
 	const togglePassword = () => {
 		setIsPasswordVisible((prev) => !prev);
 	};
+
+	const handleLogin = () => {
+		if (loginUser.email === "" || loginUser.password === "") {
+			return console.log("Ви повинні заповнити усі поля");
+		}
+		console.log("login:", loginUser);
+		navigation.navigate("Home");
+		setLoginUser(initialState);
+	};
+
+
 	return (
-		<KeyboardAvoidingView
-			style={styles.mainContainer}
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			enabled
-		>
-			<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>
+		<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>
+			<KeyboardAvoidingView
+				style={styles.mainContainer}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+				enabled
+			>
 				<ImageBackground style={styles.imageBg} source={require("../assets/Image/BG.jpg")}>
 					<View
 						style={{
@@ -43,8 +60,13 @@ export const LoginScreen = () => {
 								style={[styles.input, focusEmail && styles.inputOnFocus]}
 								placeholder="Адреса електронної пошти"
 								placeholderTextColor="#BDBDBD"
+								inputMode={"email"}
 								onFocus={() => setFocusEmail(true)}
 								onBlur={() => setFocusEmail(false)}
+								value={loginUser.email}
+								onChangeText={(value) =>
+									setLoginUser((prevState) => ({ ...prevState, email: value }))
+								}
 							/>
 							<View style={styles.passwordInputContainer}>
 								<TextInput
@@ -54,24 +76,31 @@ export const LoginScreen = () => {
 									secureTextEntry={isPasswordVisible}
 									onFocus={() => setFocusPassword(true)}
 									onBlur={() => setFocusPassword(false)}
+									value={loginUser.password}
+									onChangeText={(value) =>
+										setLoginUser((prevState) => ({ ...prevState, password: value }))
+									}
 								/>
 								<TouchableOpacity style={styles.showPasswordButton} onPress={togglePassword}>
 									<Text style={styles.showPasswordButtonText}>
-										{isPasswordVisible ? "Приховати" : "Показати"}
+										{isPasswordVisible ? "Показати" : "Приховати"}
 									</Text>
 								</TouchableOpacity>
 							</View>
 						</View>
-						<TouchableOpacity activeOpacity={0.8} style={styles.btn}>
+						<TouchableOpacity style={styles.btn} onPress={handleLogin}>
 							<Text style={styles.btnText}>Увійти</Text>
 						</TouchableOpacity>
-						<TouchableOpacity style={styles.loginLink}>
+						<TouchableOpacity
+							style={styles.loginLink}
+							onPress={() => navigation.navigate("Registration")}
+						>
 							<Text style={styles.loginLinkText}>Немає акаунту? Зареєструватися</Text>
 						</TouchableOpacity>
 					</View>
 				</ImageBackground>
-			</TouchableNativeFeedback>
-		</KeyboardAvoidingView>
+			</KeyboardAvoidingView>
+		</TouchableNativeFeedback>
 	);
 };
 
@@ -79,7 +108,6 @@ const styles = StyleSheet.create({
 	mainContainer: {
 		flex: 1,
 	},
-
 	imageBg: {
 		position: "absolute",
 		width: "100%",
@@ -96,7 +124,6 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		width: "100%",
 	},
-
 	titleContainer: {
 		justifyContent: "center",
 		alignItems: "center",
@@ -108,7 +135,6 @@ const styles = StyleSheet.create({
 		fontFamily: "Roboto-Medium",
 		color: "#212121",
 	},
-
 	input: {
 		borderWidth: 1,
 		borderColor: "#E8E8E8",
@@ -139,7 +165,6 @@ const styles = StyleSheet.create({
 		borderColor: "#FF6C00",
 		backgroundColor: "#FFFFFF",
 	},
-
 	btn: {
 		backgroundColor: "#FF6C00",
 		borderRadius: 100,
@@ -155,12 +180,12 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		fontFamily: "Roboto-Regular",
 	},
-	passwordInputContainer: {},
-
 	showPasswordButton: {
 		position: "absolute",
 		right: 16,
-		top: 16,
+		top: 0,
+		height: 50,
+		justifyContent: "center",
 		zIndex: 1,
 	},
 	showPasswordButtonText: {
