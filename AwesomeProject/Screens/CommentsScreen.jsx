@@ -12,9 +12,10 @@ import {
 	TextInput,
 } from "react-native";
 
-const Comments = () => {
-	const imageFirst = require("../assets/Image/image1.jpg");
+import Comment from "../Components/Comments";
 
+const Comments = ({ route }) => {
+	const defaultImage = require("../assets/Image/defaultImage.jpg");
 	return (
 		<KeyboardAvoidingView
 			style={styles.mainContainer}
@@ -26,9 +27,13 @@ const Comments = () => {
 				<View style={styles.subContainer}>
 					<View style={styles.container}>
 						<View style={styles.fotoContainer}>
-							<Image style={styles.foto} source={imageFirst} />
+							<Image
+								style={styles.foto}
+								source={route.params.uri === undefined ? defaultImage : { uri: route.params.uri }}
+							/>
 						</View>
 					</View>
+					<View>{/* <Comment/> */}</View>
 					<View style={styles.formContainer}>
 						<TextInput
 							style={styles.input}
@@ -69,6 +74,7 @@ const styles = StyleSheet.create({
 	},
 	foto: {
 		width: "100%",
+		height: 240,
 		borderRadius: 8,
 		marginBottom: 8,
 	},

@@ -11,21 +11,86 @@ import {
 	Text,
 	TextInput,
 } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Camera } from "expo-camera";
+import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
 
-const CreatePostsScreen = () => {
-	const [userFoto, setUserFoto] = useState(null);
+const CreatePostsScreen = ({ navigation }) => {
+	const [photo, setPhoto] = useState(null);
+	const [namePost, setNamePost] = useState("");
+	const [nameLocations, setNameLocations] = useState("");
+	const [location, setLocation] = useState(null);
 
-	const handleDeleteAvatar = () => {
-		setUserFoto(null);
+	const [hasPermission, setHasPermission] = useState(null);
+	const [cameraRef, setCameraRef] = useState(null);
+	const [type, setType] = useState(Camera.Constants.Type.back);
+
+	useEffect(() => {
+		(async () => {
+			const { status } = await Camera.requestCameraPermissionsAsync();
+			setHasPermission(status === "granted");
+		})();
+	}, []);
+
+	if (hasPermission === null) {
+		return <View />;
+	}
+	if (hasPermission === false) {
+		return <Text>No access to camera</Text>;
+	}
+
+	const takePhoto = async () => {
+		let { status } = await Location.requestForegroundPermissionsAsync();
+		if (status !== "granted") {
+			alert("Permission to access location was denied");
+			return;
+		}
+		let location = await Location.getCurrentPositionAsync({});
+		setLocation(location);
+		const photo = await cameraRef.takePictureAsync();
+		setPhoto(photo.uri);
 	};
 
-	const handleSelectAvatar = async () => {
-		const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+	const activeButton = () => {
+		if (photo === null || namePost === "" || nameLocations === "") {
+			return { ...styles.btnCreate };
+		}
+		return {
+			...styles.btnCreate,
+			backgroundColor: "#FF6C00",
+		};
+	};
+	const activeTextColor = () => {
+		if (photo === null || namePost === "" || nameLocations === "") {
+			return { ...styles.btnText };
+		}
+		return {
+			...styles.btnText,
+			color: "#FFF",
+		};
+	};
 
+	const handleDeleteFoto = () => {
+		setPhoto(null);
+		setNamePost("");
+		setNameLocations("");
+	};
+
+	const sendPhoto = () => {
+		if (photo === null || namePost === "" || nameLocations === "") {
+			return alert("Missing require field");
+		}
+		navigation.navigate("Posts", { namePost, nameLocations, photo, location });
+		setPhoto(null);
+		setNamePost("");
+		setNameLocations("");
+	};
+
+	const handleSelectFoto = async () => {
+		const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 		if (status !== "granted") {
-			alert("Доступ заборонено");
+			alert("Permission to access location was denied");
 			return;
 		}
 		const result = await ImagePicker.launchImageLibraryAsync({
@@ -35,10 +100,10 @@ const CreatePostsScreen = () => {
 			quality: 1,
 		});
 		if (!result.canceled) {
-			setUserFoto(result.assets[0].uri);
+			setPhoto(result.assets[0].uri);
 		}
 	};
-	
+
 	return (
 		<KeyboardAvoidingView
 			style={styles.mainContainer}
@@ -49,34 +114,77 @@ const CreatePostsScreen = () => {
 			<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>
 				<View style={styles.container}>
 					<View style={styles.fotoContainer}>
-						<Image style={styles.foto} source={userFoto && { uri: userFoto }} />
-						{userFoto ? (
-							<TouchableOpacity
-								style={{ ...styles.iconAddButton, backgroundColor: "rgba(255, 255, 255, 0.30)" }}
-								onPress={handleSelectAvatar}
-							>
-								<MaterialIcons name="camera-alt" size={24} color="#FFF" />
-							</TouchableOpacity>
-						) : (
-							<TouchableOpacity
-								style={{ ...styles.iconAddButton, backgroundColor: "#FFF" }}
-								onPress={handleSelectAvatar}
-							>
-								<MaterialIcons name="camera-alt" size={24} color="#BDBDBD" />
-							</TouchableOpacity>
-						)}
+						<Camera style={styles.camera} type={type} ref={setCameraRef}>
+							{photo && (
+								<View style={styles.photoContainer}>
+									<Image
+										source={{ uri: photo }}
+										style={{
+											height: 240,
+											width: "100%",
+											borderRadius: 8,
+										}}
+									/>
+									<TouchableOpacity
+										style={{
+											...styles.iconAddButton,
+											backgroundColor: "rgba(255, 255, 255, 0.30)",
+										}}
+										onPress={handleDeleteFoto}
+									>
+										<MaterialIcons name="camera-alt" size={24} color="#FFF" />
+									</TouchableOpacity>
+								</View>
+							)}
+
+							<View style={styles.photoView}>
+								<TouchableOpacity
+									style={styles.flipContainer}
+									onPress={() => {
+										setType(
+											type === Camera.Constants.Type.back
+												? Camera.Constants.Type.front
+												: Camera.Constants.Type.back
+										);
+									}}
+								>
+									<MaterialCommunityIcons
+										name="camera-retake-outline"
+										size={24}
+										color="rgba(255, 255, 255, 0.70)"
+									/>
+								</TouchableOpacity>
+
+								{!photo && (
+									<TouchableOpacity
+										style={{ ...styles.iconAddButton, backgroundColor: "#FFF" }}
+										onPress={takePhoto}
+									>
+										<MaterialIcons name="camera-alt" size={24} color="#BDBDBD" />
+									</TouchableOpacity>
+								)}
+							</View>
+						</Camera>
 					</View>
 
-					<View style={styles.titleContainer}>
-						<Text style={styles.title}>{userFoto ? "Редагувати фото" : "Завантажте фото"}</Text>
-					</View>
+					<TouchableOpacity style={styles.titleContainer} onPress={handleSelectFoto}>
+						<Text style={styles.title}>{photo ? "Редагувати фото" : "Завантажте фото"}</Text>
+					</TouchableOpacity>
 					<View>
-						<TextInput style={styles.input} placeholder="Назва..." placeholderTextColor="#BDBDBD" />
+						<TextInput
+							value={namePost}
+							style={styles.input}
+							placeholder="Назва..."
+							placeholderTextColor="#BDBDBD"
+							onChangeText={setNamePost}
+						/>
 						<View>
 							<TextInput
+								value={nameLocations}
 								style={styles.inputLocation}
 								placeholder="Місцевість..."
 								placeholderTextColor="#BDBDBD"
+								onChangeText={setNameLocations}
 							/>
 							<MaterialCommunityIcons
 								style={styles.locationIcon}
@@ -87,12 +195,12 @@ const CreatePostsScreen = () => {
 						</View>
 					</View>
 					<View>
-						<TouchableOpacity style={styles.btnCreate}>
-							<Text style={styles.btnText}>Опубліковати</Text>
+						<TouchableOpacity style={activeButton()} onPress={sendPhoto}>
+							<Text style={activeTextColor()}>Опубліковати</Text>
 						</TouchableOpacity>
 					</View>
 					<View style={styles.btnDeleteContainer}>
-						<TouchableOpacity style={styles.btnDelete} onPress={handleDeleteAvatar}>
+						<TouchableOpacity style={styles.btnDelete} onPress={handleDeleteFoto}>
 							<Text style={styles.btnText}>
 								<Feather name="trash-2" size={24} color="#BDBDBD" />
 							</Text>
@@ -120,12 +228,19 @@ const styles = StyleSheet.create({
 		marginTop: 32,
 		marginBottom: 0,
 		backgroundColor: "#F6F6F6",
-		borderRadius: 16,
+		borderRadius: 8,
 	},
-	foto: {
-		borderRadius: 16,
+	camera: { flex: 1, borderRadius: 8 },
+	photoView: {
+		flex: 1,
+		backgroundColor: "transparent",
+		justifyContent: "flex-end",
+	},
+	flipContainer: {
+		flex: 0.1,
+		alignSelf: "flex-end",
 		marginBottom: 8,
-		height: 240,
+		marginRight: 8,
 	},
 	iconAddButton: {
 		position: "absolute",
@@ -139,7 +254,6 @@ const styles = StyleSheet.create({
 	},
 	titleContainer: {
 		alignSelf: "flex-start",
-
 		marginBottom: 32,
 	},
 	title: {

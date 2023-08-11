@@ -2,7 +2,7 @@ import { StyleSheet, View, Text, Image } from "react-native";
 
 import Posts from "../Components/posts";
 
-const PostsScreen = () => {
+const PostsScreen = ({ route }) => {
 	return (
 		<View style={styles.userContainer}>
 			<View style={styles.userInfoWrp}>
@@ -13,7 +13,7 @@ const PostsScreen = () => {
 				</View>
 			</View>
 			<View>
-				<Posts />
+				{route.params!==undefined&&<Posts post={route.params} />}
 			</View>
 		</View>
 	);

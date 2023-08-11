@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import { useState } from "react";
 
-const Posts = () => {
+const Posts = ({ post }) => {
 	const [userLike, setUserLike] = useState(null);
 	const navigation = useNavigation();
-	const imageFirst = require("../assets/Image/image1.jpg");
+	const defaultImage = require("../assets/Image/defaultImage.jpg");
 
 	const like = () => {
 		if (userLike === null) {
@@ -30,7 +30,7 @@ const Posts = () => {
 		}
 		return "#FF6C00";
 	};
-	
+
 	return (
 		<KeyboardAvoidingView
 			style={styles.mainContainer}
@@ -39,16 +39,19 @@ const Posts = () => {
 		>
 			<View style={styles.container}>
 				<View style={styles.fotoContainer}>
-					<Image style={styles.foto} source={imageFirst} />
+					<Image
+						style={styles.foto}
+						source={post.photo === undefined ? defaultImage : { uri: post.photo }}
+					/>
 					<View style={styles.containerTitle}>
-						<Text style={styles.title}>Ліс</Text>
+						<Text style={styles.title}>{post.namePost}</Text>
 					</View>
 
 					<View style={styles.containerOptions}>
 						<View style={{ flexDirection: "row" }}>
 							<TouchableOpacity
 								style={{ flexDirection: "row" }}
-								onPress={() => navigation.navigate("Comments")}
+								onPress={() => navigation.navigate("Comments", { uri: post.photo })}
 							>
 								<Feather name="message-circle" size={24} color="#BDBDBD" />
 								<Text style={styles.comment}>0</Text>
@@ -61,10 +64,10 @@ const Posts = () => {
 						</View>
 						<TouchableOpacity
 							style={{ flexDirection: "row" }}
-							onPress={() => navigation.navigate("Map")}
+							onPress={() => navigation.navigate("Map", { post })}
 						>
 							<MaterialCommunityIcons name="map-marker-outline" size={24} color="#BDBDBD" />
-							<Text style={styles.location}>Ukraine</Text>
+							<Text style={styles.location}>{post.nameLocations}</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -72,6 +75,7 @@ const Posts = () => {
 		</KeyboardAvoidingView>
 	);
 };
+
 const styles = StyleSheet.create({
 	mainContainer: {
 		flex: 1,
@@ -92,6 +96,7 @@ const styles = StyleSheet.create({
 	foto: {
 		width: "100%",
 		borderRadius: 8,
+		height: 240,
 		marginBottom: 8,
 	},
 	containerTitle: {

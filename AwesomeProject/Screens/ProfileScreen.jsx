@@ -8,13 +8,13 @@ import {
 	KeyboardAvoidingView,
 	Platform,
 	Keyboard,
-    TouchableNativeFeedback,
-    Text,
+	TouchableNativeFeedback,
+	Text,
 } from "react-native";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 
-import Posts from "../Components/posts"
+// import Posts from "../Components/posts";
 
 const ProfileScreen = ({ navigation }) => {
 	const [userFoto, setUserFoto] = useState(null);
@@ -80,9 +80,7 @@ const ProfileScreen = ({ navigation }) => {
 						<View style={styles.titleContainer}>
 							<Text style={styles.title}>Natali Romanova</Text>
 						</View>
-						<View style={styles.postContainer}>
-							<Posts />
-						</View>
+						<View style={styles.postContainer}>{/* <Posts /> */}</View>
 					</View>
 				</ImageBackground>
 			</KeyboardAvoidingView>

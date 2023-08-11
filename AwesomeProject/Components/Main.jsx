@@ -11,7 +11,7 @@ const MainStack = createStackNavigator();
 const Main = () => {
 	return (
 		<MainStack.Navigator
-			initialRouteName="Login"
+			initialRouteName="Home"
 			screenOptions={{
 				tabBarShowLabel: false,
 				headerTitleStyle: {
@@ -28,7 +28,6 @@ const Main = () => {
 				},
 			}}
 		>
-
 			<MainStack.Screen
 				name="Registration"
 				component={RegistrationScreen}
@@ -38,7 +37,7 @@ const Main = () => {
 			<MainStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
 
 			<MainStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-			
+
 			<MainStack.Screen
 				name="Comments"
 				component={Comments}
@@ -56,7 +55,6 @@ const Main = () => {
 					headerTitle: "Карта",
 				})}
 			/>
-
 		</MainStack.Navigator>
 	);
 };
