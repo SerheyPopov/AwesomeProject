@@ -1,8 +1,11 @@
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
-import Main from "./Components/Main";
 import "react-native-gesture-handler";
+import { Provider } from "react-redux";
+
+import { store } from "./Redux/store";
+import Home from "./Screens/Home";
 
 export default function App() {
 	const [fontsLoaded] = useFonts({
@@ -17,8 +20,10 @@ export default function App() {
 	return (
 		<>
 			<NavigationContainer>
-				<Main />
-				<StatusBar style="auto" />
+				<Provider store={store}>
+					<Home />
+					<StatusBar style="auto" />
+				</Provider>
 			</NavigationContainer>
 		</>
 	);

@@ -15,16 +15,22 @@ import React, { useState, useEffect } from "react";
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
+import { useSelector } from "react-redux";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
+
+import { storage, db } from "../Firebase/config";
 
 const CreatePostsScreen = ({ navigation }) => {
 	const [photo, setPhoto] = useState(null);
 	const [namePost, setNamePost] = useState("");
 	const [nameLocations, setNameLocations] = useState("");
 	const [location, setLocation] = useState(null);
-
 	const [hasPermission, setHasPermission] = useState(null);
 	const [cameraRef, setCameraRef] = useState(null);
 	const [type, setType] = useState(Camera.Constants.Type.back);
+	const userId = useSelector((state) => state.userId);
+	const login = useSelector((state) => state.login);
 
 	useEffect(() => {
 		(async () => {
@@ -61,6 +67,7 @@ const CreatePostsScreen = ({ navigation }) => {
 			backgroundColor: "#FF6C00",
 		};
 	};
+
 	const activeTextColor = () => {
 		if (photo === null || namePost === "" || nameLocations === "") {
 			return { ...styles.btnText };
@@ -81,10 +88,33 @@ const CreatePostsScreen = ({ navigation }) => {
 		if (photo === null || namePost === "" || nameLocations === "") {
 			return alert("Missing require field");
 		}
-		navigation.navigate("Posts", { namePost, nameLocations, photo, location });
+		navigation.navigate("Posts");
+		uploadPostToServer();
 		setPhoto(null);
 		setNamePost("");
 		setNameLocations("");
+	};
+
+	const uploadPostToServer = async () => {
+		const photo = await uploadPhotoToServer();
+		const createPost = await addDoc(collection(db, "posts"), {
+			photo,
+			namePost,
+			nameLocations,
+			location: location.coords,
+			userId,
+			login,
+		});
+	};
+
+	const uploadPhotoToServer = async () => {
+		const response = await fetch(photo);
+		const file = await response.blob();
+		const uniquePostId = Date.now().toString();
+		const data = ref(storage, `postImage/${uniquePostId}`);
+		const upload = await uploadBytes(data, file);
+		const download = await getDownloadURL(data, file);
+		return download;
 	};
 
 	const handleSelectFoto = async () => {
@@ -99,8 +129,11 @@ const CreatePostsScreen = ({ navigation }) => {
 			aspect: [1, 1],
 			quality: 1,
 		});
+		let location = await Location.getCurrentPositionAsync({});
+
 		if (!result.canceled) {
 			setPhoto(result.assets[0].uri);
+			setLocation(location);
 		}
 	};
 

@@ -11,6 +11,9 @@ import {
 	TouchableNativeFeedback,
 } from "react-native";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+
+import { loginDB } from "../Redux/authOperations";
 
 const initialState = {
 	email: "",
@@ -23,6 +26,8 @@ export const LoginScreen = ({ navigation }) => {
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const [loginUser, setLoginUser] = useState(initialState);
 
+	const dispatch = useDispatch();
+
 	const togglePassword = () => {
 		setIsPasswordVisible((prev) => !prev);
 	};
@@ -31,11 +36,9 @@ export const LoginScreen = ({ navigation }) => {
 		if (loginUser.email === "" || loginUser.password === "") {
 			return console.log("Ви повинні заповнити усі поля");
 		}
-		console.log("login:", loginUser);
-		navigation.navigate("Home");
+		dispatch(loginDB(loginUser));
 		setLoginUser(initialState);
 	};
-
 
 	return (
 		<TouchableNativeFeedback onPress={() => Keyboard.dismiss()}>

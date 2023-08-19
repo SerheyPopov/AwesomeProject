@@ -1,17 +1,45 @@
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { Feather, AntDesign, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useDispatch, useSelector } from "react-redux";
+import { createStackNavigator } from "@react-navigation/stack";
+import React, { useEffect } from "react";
 
-import PostsScreen from "../Screens/PostsScreen";
+import { RegistrationScreen } from "./RegistrationScreen";
+import { LoginScreen } from "./LoginScreen";
 import CreatePostsScreen from "../Screens/CreatePostsScreen";
 import ProfileScreen from "../Screens/ProfileScreen";
+import Main from "../Components/Main";
+import { authStateChangeUser } from "../Redux/authOperations";
 
+const MainStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
 
 const Home = () => {
+	const stateChange = useSelector((state) => state.stateChange);
+
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		dispatch(authStateChangeUser());
+	}, [dispatch]);
+
+	if (!stateChange) {
+		return (
+			<MainStack.Navigator initialRouteName="Login">
+				<MainStack.Screen
+					name="Registration"
+					component={RegistrationScreen}
+					options={{ headerShown: false }}
+				/>
+				<MainStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+			</MainStack.Navigator>
+		);
+	}
+
 	return (
 		<MainTab.Navigator
-			initialRouteName="Posts"
+			initialRouteName="Main"
 			screenOptions={{
 				tabBarShowLabel: false,
 				headerTitleStyle: {
@@ -29,23 +57,15 @@ const Home = () => {
 			}}
 		>
 			<MainTab.Screen
-				options={({ navigation }) => ({
-					headerRight: () => (
-						<TouchableOpacity onPress={() => navigation.navigate("Login")}>
-							<Feather name="log-out" size={24} color="#BDBDBD" />
-						</TouchableOpacity>
-					),
-					headerTitleAlign: "center",
-					headerShown: true,
-					headerRightContainerStyle: { right: 16 },
-					headerTitle: "Публікації",
+				options={() => ({
 					tabBarIcon: ({}) => (
 						<AntDesign name="appstore-o" size={24} color="#212121" focused={false} />
 					),
 					tabBarItemStyle: { left: 40 },
+					headerShown: false,
 				})}
-				name="Posts"
-				component={PostsScreen}
+				name="Main"
+				component={Main}
 			/>
 
 			<MainTab.Screen
@@ -81,6 +101,7 @@ const Home = () => {
 		</MainTab.Navigator>
 	);
 };
+
 export default Home;
 
 const styles = StyleSheet.create({

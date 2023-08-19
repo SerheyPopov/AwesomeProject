@@ -14,6 +14,9 @@ import {
 } from "react-native";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import { useDispatch } from "react-redux";
+
+import { registerDB } from "../Redux/authOperations";
 
 const initialState = {
 	login: "",
@@ -29,6 +32,8 @@ export const RegistrationScreen = ({ navigation }) => {
 	const [registerateUser, setRegisterateUser] = useState(initialState);
 	const [userFoto, setUserFoto] = useState(null);
 
+	const dispatch = useDispatch();
+
 	const togglePassword = () => {
 		setIsPasswordVisible((prev) => !prev);
 	};
@@ -40,8 +45,7 @@ export const RegistrationScreen = ({ navigation }) => {
 		) {
 			return console.log("Ви повинні заповнити усі поля");
 		}
-		console.log("Registration:", registerateUser);
-		  navigation.navigate("Home");
+		dispatch(registerDB({ ...registerateUser, userFoto }));
 		setRegisterateUser(initialState);
 	};
 
@@ -196,8 +200,8 @@ const styles = StyleSheet.create({
 		position: "absolute",
 		top: 81,
 		left: 47.5,
-		borderRadius:12,
-		backgroundColor:"#FFFFFF",
+		borderRadius: 12,
+		backgroundColor: "#FFFFFF",
 	},
 	titleContainer: {
 		justifyContent: "center",
@@ -245,7 +249,7 @@ const styles = StyleSheet.create({
 		right: 16,
 		top: 0,
 		height: 50,
-		justifyContent:"center",
+		justifyContent: "center",
 		zIndex: 1,
 	},
 	showPasswordButtonText: {

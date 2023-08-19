@@ -2,8 +2,7 @@ import { View, StyleSheet, Dimensions } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 const Map = ({ route }) => {
-	const { latitude, longitude } = route.params.post.location.coords;
-
+	const { latitude, longitude } = route.params.location;
 	return (
 		<View style={styles.container}>
 			<MapView

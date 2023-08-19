@@ -1,17 +1,25 @@
 import { createStackNavigator } from "@react-navigation/stack";
+import { TouchableOpacity } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
 
-import { RegistrationScreen } from "../Screens/RegistrationScreen";
-import { LoginScreen } from "../Screens/LoginScreen";
 import Comments from "../Screens/CommentsScreen";
 import Map from "../Screens/MapScreen";
-import Home from "../Screens/Home";
+import PostsScreen from "../Screens/PostsScreen";
+import { authSingOutUser } from "../Redux/authOperations";
 
 const MainStack = createStackNavigator();
 
 const Main = () => {
+	const dispatch = useDispatch();
+
+	const handleLogOut = () => {
+		dispatch(authSingOutUser());
+	};
+
 	return (
 		<MainStack.Navigator
-			initialRouteName="Home"
+			initialRouteName="Posts"
 			screenOptions={{
 				tabBarShowLabel: false,
 				headerTitleStyle: {
@@ -29,15 +37,19 @@ const Main = () => {
 			}}
 		>
 			<MainStack.Screen
-				name="Registration"
-				component={RegistrationScreen}
-				options={{ headerShown: false }}
+				options={() => ({
+					headerRight: () => (
+						<TouchableOpacity onPress={handleLogOut}>
+							<Feather name="log-out" size={24} color="#BDBDBD" />
+						</TouchableOpacity>
+					),
+					headerRightContainerStyle: { right: 16 },
+					headerTitle: "Публікації",
+					headerTitleAlign: "center",
+				})}
+				name="Posts"
+				component={PostsScreen}
 			/>
-
-			<MainStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-
-			<MainStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-
 			<MainStack.Screen
 				name="Comments"
 				component={Comments}
@@ -46,7 +58,6 @@ const Main = () => {
 					headerTitle: "Коментарі",
 				})}
 			/>
-
 			<MainStack.Screen
 				name="Map"
 				component={Map}
