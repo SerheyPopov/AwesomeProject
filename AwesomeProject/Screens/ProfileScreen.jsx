@@ -161,9 +161,7 @@ const ProfileScreen = ({ navigation }) => {
 											) : (
 												<>
 													<FontAwesome name={"comment-o"} size={24} color="#BDBDBD" />
-													<Text style={{ ...styles.commentText, color: "#BDBDBD" }}>
-														{item.comments}
-													</Text>
+													<Text style={{ ...styles.commentText, color: "#BDBDBD" }}></Text>
 												</>
 											)}
 										</TouchableOpacity>

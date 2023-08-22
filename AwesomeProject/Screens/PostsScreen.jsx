@@ -2,7 +2,7 @@ import { StyleSheet, View, Text, Image, FlatList, TouchableOpacity } from "react
 import { useSelector } from "react-redux";
 import React, { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { FontAwesome, Feather, AntDesign } from "@expo/vector-icons";
 
 import { db } from "../Firebase/config";
@@ -15,6 +15,16 @@ const PostsScreen = ({ navigation }) => {
 	const email = useSelector((state) => state.email);
 	const selectedAvatar = useSelector((state) => state.selectedAvatar);
 
+	useEffect(() => {
+		updatePosts();
+	}, []);
+
+	useFocusEffect(
+		useCallback(() => {
+			getAllPost();
+		}, [])
+	);
+
 	const getAllPost = async () => {
 		const snapshot = await getDocs(collection(db, "posts"));
 		const fetchedPosts = [];
@@ -26,20 +36,16 @@ const PostsScreen = ({ navigation }) => {
 				id: doc.id,
 				comments: commentsSnapshot.size,
 			};
-			fetchedPosts.push(post);
+			fetchedPosts.unshift(post);
 		}
 		setPosts(fetchedPosts);
 	};
 
-	useEffect(() => {
-		getAllPost();
-	}, []);
-
-	useFocusEffect(
-		useCallback(() => {
+	const updatePosts = async () => {
+		onSnapshot(collection(db, "posts"), () => {
 			getAllPost();
-		}, [])
-	);
+		});
+	};
 
 	const like = () => {
 		if (userLike === null) {
@@ -108,9 +114,7 @@ const PostsScreen = ({ navigation }) => {
 									) : (
 										<>
 											<FontAwesome name={"comment-o"} size={24} color="#BDBDBD" />
-											<Text style={{ ...styles.commentText, color: "#BDBDBD" }}>
-												{item.comments}
-											</Text>
+											<Text style={{ ...styles.commentText, color: "#BDBDBD" }}></Text>
 										</>
 									)}
 								</TouchableOpacity>
